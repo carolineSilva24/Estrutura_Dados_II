@@ -1,196 +1,178 @@
 #include <stdio.h>
 #include <stdlib.h>
-// Caroline Andrade Silva - CC6M 
 
-// Struct para armazenar os dados do no
-struct NO {
-  int info;
-  struct NO *esq;
-  struct NO *dir;
+struct NoArvore
+{
+    int dado;
+    struct NoArvore *esquerda;
+    struct NoArvore *direita;
 };
 
-typedef struct NO *ArvBin;
-// cria a arvore binaria
-ArvBin *cria_ArvBin() {
-  ArvBin *raiz = (ArvBin *)malloc(sizeof(ArvBin));
-  if (raiz != NULL) {
-    *raiz = NULL;
-  }
-  return raiz;
+struct NoArvore *criarNo(int dado)
+{
+    struct NoArvore *novoNo = (struct NoArvore *)malloc(sizeof(struct NoArvore));
+    if (novoNo == NULL)
+    {
+        printf("Erro: Falha ao alocar memória para o novo nó.\n");
+        exit(-1);
+    }
+    novoNo->dado = dado;
+    novoNo->esquerda = NULL;
+    novoNo->direita = NULL;
+    return novoNo;
 }
 
-int insert_ArvBin(ArvBin *raiz, int valor) {
-  // verifica se a arvore esta vazia
-  if (raiz == NULL) {
-    return 0;
-  }
-  struct NO *novo;
-  // cria um novo no e aloca a memoria com o tamanho do no
-  novo = (struct NO *)malloc(sizeof(struct NO));
-  if (novo == NULL) {
-    return 0;
-  }
-  novo->info = valor;
-  novo->dir = NULL;
-  novo->esq = NULL;
-// se não tiver um no raiz o novo valor vai ser o no raiz
-  if (*raiz == NULL) {
-    *raiz = novo;
-  } else {
-    struct NO *atual = *raiz;
-    struct NO *ant = NULL;
-    // enquanto o valor do atual for diferente de nulo o atual vai ser o anterior 
-    while (atual != NULL) {
-      ant = atual;
-      // se o valor for igual ao atual o valor não vai ser inserido
-      if (valor == atual->info) {
-        free(novo);
-        return 0;
-      }
-      // se o valor for maior que o atual, o atual vai ser o direito
-      if (valor > atual->info) {
-        atual = atual->dir;
-        // se o valor for menor que o atual, o atual vai ser o esquerdo
-      } else {
-        atual = atual->esq;
-      }
+struct NoArvore *inserir(struct NoArvore *raiz, int dado)
+{
+    if (raiz == NULL)
+    {
+        raiz = criarNo(dado);
     }
-    // se o valor for maior que o anterior, o novo vai ser o direito
-    if (valor > ant->info) {
-      ant->dir = novo;
-    // se o valor for menor que o anterior, o novo vai ser o esquerdo
-    } else {
-      ant->esq = novo;
-    }
-  }
-  return 1;}
-
-void preOrdem_arvBin(ArvBin *raiz){
-  // verifica se a árvore ta vazia
-  if(raiz==NULL){
-      return;
-  }
-  // ordena a arvore em pre ordem
-  if(*raiz!=NULL){
-    printf("%d\t", (*raiz)->info);
-    preOrdem_arvBin(&((*raiz)->esq));
-    preOrdem_arvBin(&((*raiz)->dir));
-  }
-}
-
-int procura_ArvBin(ArvBin *raiz, int valor){
-  // verifica se a arvore está vazia
-  if(raiz==NULL){
-      return 0;
-  };
-  struct NO *atual = *raiz;
-  // percorre a arvore ate achar o valor procurado
-  while(atual!=NULL){
-    // verifica se o valor foi encontrado
-    if(valor==atual->info){
-      printf("Elemento encontrado!\n");
-      return 1; 
-    }
-    // verifica se o valor é menor ou maior que o atual
-    if(valor>atual->info){
-      atual=atual->dir;
-    }
-    if(valor<atual->info){
-      atual=atual->esq;
-    }
-  }
-  printf("Elemento não encontrado!\n");
-  return 0; 
-};
-
-int remove_ArvBin(ArvBin *raiz, int valor){
-  //verifica se a arvore está vazia
-  if(raiz==NULL){
-      return 0;
-  };
-  struct NO *atual = *raiz;
-  struct NO *ant=NULL;
-
-  //busca do nó a ser removido
-  while(atual!=NULL){
-    if(valor==atual->info)
-      break;
-    ant=atual;
-    if(valor>atual->info)
-      atual=atual->dir;
     else
-      atual=atual->esq;
-  }
-  // caso o valor não tenha sido encontrado na arvore
-    if(atual==NULL)
-      return 0;
-  // caso o nó a ser removido seja uma folha
-    if(atual->esq==NULL && atual->dir==NULL)
-      if(ant==NULL)
-        // como não tem filhos ele é a raiz ent é apagada
-        *raiz=NULL;
-      else
-        // caso tenha filhos o ponteiro ant é desconectado como nó da arvore
-        if(ant->esq==atual)
-          ant->esq=NULL;
+    {
+        if (dado <= raiz->dado)
+        {
+            raiz->esquerda = inserir(raiz->esquerda, dado);
+        }
         else
-          ant->dir=NULL;
-  // caso tenha 2 filhos
-    else
-      if(atual->esq!=NULL && atual->dir!=NULL)
-        if(ant==NULL)
-  // a raiz é o nó a ser removido e será substituido pelo maior da esquerda
-          *raiz=atual->esq;
-  // O filho esquerdo de atual substitui atual na árvore.
-        else
-          if(ant->esq==atual)
-            ant->esq=atual->esq;
-          else
-            ant->dir=atual->esq;
-  // o nó tem apenas um filho
-      else
-  //se o anterior for nulo o nó a ser removido é a raiz, então a raiz é substituída pelo único filho de atual.
-        if(ant==NULL)
-          *raiz=atual->esq!=NULL?atual->esq:atual->dir;
-  // O único filho de atual substitui atual na árvore.
-        else
-          if(ant->esq==atual)
-            ant->esq=atual->esq!=NULL?atual->esq:atual->dir;
-          else
-            ant->dir=atual->esq!=NULL?atual->esq:atual->dir;
-  // libera o nó atual
-  free(atual);
-  return 1;
+        {
+            raiz->direita = inserir(raiz->direita, dado);
+        }
+    }
+    return raiz;
 }
 
-int main(void) {
-  ArvBin *raiz = cria_ArvBin();
-  // nos a serem inseridos na árvore binaria
-  int N = 9, dados[9] = {50, 100, 30, 20, 40, 45, 35, 57, 52};
-  // inserção dos elementos da arvore até o ultimo valor
-  for (int i = 0; i < N; i++) {
-    insert_ArvBin(raiz, dados[i]);
-    printf("Nó inserido: %d\n", dados[i]);
-  }
-  printf("\nPre-ordem: ");
-  preOrdem_arvBin(raiz);
-  
-  printf("\nProcurando o elemento 20 na Arvore binaria: ");
-  procura_ArvBin(raiz, 20);
-  
-  remove_ArvBin(raiz, 20);
-  printf("\nPre-ordem após remoção do 20: ");
-  preOrdem_arvBin(raiz);
+struct NoArvore *encontrarMinimo(struct NoArvore *raiz)
+{
+    struct NoArvore *atual = raiz;
+    while (atual->esquerda != NULL)
+    {
+        atual = atual->esquerda;
+    }
+    return atual;
+}
 
-  remove_ArvBin(raiz, 30);
-  printf("\nPre-ordem após remoção do 30: ");
-  preOrdem_arvBin(raiz);
+struct NoArvore *excluir(struct NoArvore *raiz, int valor)
+{
+    if (raiz == NULL)
+    {
+        return raiz;
+    }
 
-  remove_ArvBin(raiz, 27);
-  printf("\nPre-ordem após remoção do 27: ");
-  preOrdem_arvBin(raiz);
-  
-  printf("\n\nProcurando o elemento 20 na Arvore binaria: ");
-  procura_ArvBin(raiz, 20);
-  return 0;
+    if (valor < raiz->dado)
+    {
+        raiz->esquerda = excluir(raiz->esquerda, valor);
+    }
+    else if (valor > raiz->dado)
+    {
+        raiz->direita = excluir(raiz->direita, valor);
+    }
+    else
+    {
+        // Caso 1: Nó folha ou nó com apenas um filho
+        if (raiz->esquerda == NULL)
+        {
+            struct NoArvore *temp = raiz->direita;
+            free(raiz);
+            return temp;
+        }
+        else if (raiz->direita == NULL)
+        {
+            struct NoArvore *temp = raiz->esquerda;
+            free(raiz);
+            return temp;
+        }
+
+        // Caso 2: Nó com dois filhos, encontra o sucessor in-order (menor valor na subárvore direita)
+        struct NoArvore *temp = encontrarMinimo(raiz->direita);
+        raiz->dado = temp->dado;
+        raiz->direita = excluir(raiz->direita, temp->dado);
+    }
+    return raiz;
+}
+
+void percorrerEmOrdem(struct NoArvore *raiz)
+{
+    if (raiz != NULL)
+    {
+        percorrerEmOrdem(raiz->esquerda);
+        printf("%d ", raiz->dado);
+        percorrerEmOrdem(raiz->direita);
+    }
+}
+
+void percorrerPreOrdem(struct NoArvore *raiz)
+{
+    if (raiz != NULL)
+    {
+        printf("%d ", raiz->dado);
+        percorrerEmOrdem(raiz->esquerda);
+        percorrerEmOrdem(raiz->direita);
+    }
+}
+
+void percorrerPosOrdem(struct NoArvore *raiz)
+{
+    if (raiz != NULL)
+    {
+        percorrerEmOrdem(raiz->esquerda);
+        percorrerEmOrdem(raiz->direita);
+        printf("%d ", raiz->dado);
+    }
+}
+
+// Função auxiliar para imprimir um caractere precedido por uma quantidade específica de espaços
+void imprimeNo(int c, int b)
+{
+    int i;
+    for (i = 0; i < b; i++)
+        printf("   ");
+    printf("%i\n", c);
+}
+
+// Função para exibir a árvore no formato esquerda-raiz-direita segundo Sedgewick
+void mostraArvore(struct NoArvore *a, int b)
+{
+    if (a == NULL)
+    {
+        return;
+    }
+    mostraArvore(a->direita, b + 1);
+    imprimeNo(a->dado, b); // Convertendo para caractere para imprimir
+    mostraArvore(a->esquerda, b + 1);
+}
+
+int main()
+{
+    struct NoArvore *raiz = NULL;
+
+    // Inserindo elementos na árvore
+    raiz = inserir(raiz, 1);
+    raiz = inserir(raiz, 2);
+    raiz = inserir(raiz, 3);
+    raiz = inserir(raiz, 4);
+    raiz = inserir(raiz, 5);
+    raiz = inserir(raiz, 6);
+    raiz = inserir(raiz, 7);
+    raiz = inserir(raiz, 8);
+    raiz = inserir(raiz, 9);
+    raiz = inserir(raiz, 10);
+
+    mostraArvore(raiz, 3);
+    excluir(raiz,5);
+    mostraArvore(raiz,3);
+    /* Imprimindo a árvore em ordem
+    printf("\nÁrvore em pré-ordem: ");
+    percorrerPreOrdem(raiz);
+    printf("\n");
+
+    printf("Árvore em ordem: ");
+    percorrerEmOrdem(raiz);
+    printf("\n");
+
+    printf("Árvore em pós-ordem: ");
+    percorrerPosOrdem(raiz);
+    printf("\n");*/
+
+    return 0;
 }
