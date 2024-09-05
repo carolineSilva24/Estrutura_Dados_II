@@ -1,4 +1,4 @@
-// Arvore AVL - Caroline Andrade Silva
+// Arvore AVL - Caroline Andrade Silva - CC6M
 
 #include <stdio.h>
 #include <stdlib.h>
